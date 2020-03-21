@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour {
     public Transform[] projectileSources;
     public GameObject projectilePrefab;
 
+    private ObjectPool projectileObjectPool;
     private Player playerModel;
     private PlayerView playerView;
     private bool isShooting;
@@ -19,6 +20,8 @@ public class PlayerController : MonoBehaviour {
         playerModel = new Player();
         playerView = GetComponent<PlayerView>();
         SetMovementLimits();
+
+        projectileObjectPool = ObjectPoolManager.Instance.GetObjectPool(projectilePrefab);
 
         playerModel.PlayerHealth
             .ObserveEveryValueChanged(x => x.Value)
@@ -40,13 +43,7 @@ public class PlayerController : MonoBehaviour {
                 HandleInput();
             }).AddTo(this);
 
-
         StartCoroutine(ShootThread());
-    }
-
-    public PlayerController(Player playerModel, PlayerView playerView) {
-        this.playerModel = playerModel;
-        this.playerView = playerView;
     }
 
     public void HandleInput() {
@@ -72,8 +69,16 @@ public class PlayerController : MonoBehaviour {
     private void Shoot() {
         foreach (Transform projectileSource in projectileSources) {
             // object pool
-            Instantiate(projectilePrefab, projectileSource.position, projectileSource.rotation);
+            //Instantiate(projectilePrefab, projectileSource.position, projectileSource.rotation);
+            GameObject projectile = projectileObjectPool.Get();
+            projectile.transform.position = projectileSource.transform.position;
+            projectile.transform.rotation = projectileSource.transform.rotation;
+
         }
+    }
+
+    public void AsteroidHit() {
+        playerModel.PlayerHealth.Value -= 1;
     }
 
     private void SetMovementLimits() {
