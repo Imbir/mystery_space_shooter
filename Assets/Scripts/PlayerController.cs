@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour {
         playerModel.PlayerHealth
             .ObserveEveryValueChanged(x => x.Value)
             .Subscribe(
-            // propagate to UI
+                playerLife => GameUI.Instance.UpdatePlayerLifeText(playerLife)
             ).AddTo(this);
 
         playerModel.PlayerPosition
@@ -70,7 +70,10 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void Shoot() {
-        Debug.Log("Pew");
+        foreach (Transform projectileSource in projectileSources) {
+            // object pool
+            Instantiate(projectilePrefab, projectileSource.position, projectileSource.rotation);
+        }
     }
 
     private void SetMovementLimits() {
