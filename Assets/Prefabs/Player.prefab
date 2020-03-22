@@ -192,6 +192,8 @@ MonoBehaviour:
   - {fileID: 872223231315292347}
   projectilePrefab: {fileID: 9205042636184175194, guid: 7c624ecfb0718324a9ea79cacacd9491,
     type: 3}
+  explosionPrefab: {fileID: 4499920077234397103, guid: e2ace6c6e550b874d995a6db8b3422cc,
+    type: 3}
 --- !u!1001 &8921277925148669009
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1,9 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UniRx;
 
 
 public class GameController : MonoBehaviour {
+
+    private static GameController instance;
+
+    public static GameController Instance {
+        get {
+            if (instance == null)
+                instance = FindObjectOfType<GameController>();
+            return instance;
+        }
+    }
 
     public static int LevelIndex;
 
@@ -14,12 +25,20 @@ public class GameController : MonoBehaviour {
     private ObjectPool asteroidPool;
     private HashSet<GameObject> spawnedObstacles = new HashSet<GameObject>();
     private bool allSpawned = false;
+    private ReactiveProperty<bool> levelCompleted;
+    private IReadOnlyReactiveProperty<bool> gameOver;
 
     private bool AllObstaclesDestroyed {
         get {
             foreach (GameObject obstacle in spawnedObstacles)
-                if (obstacle.activeSelf) return false;
+                if (obstacle != null && obstacle.activeSelf) return false;
             return true;
+        }
+    }
+
+    public bool IsGameOver {
+        get {
+            return gameOver.Value;
         }
     }
 
@@ -40,13 +59,39 @@ public class GameController : MonoBehaviour {
 
         asteroidPool = ObjectPoolManager.Instance.GetObjectPool(asteroidPrefab);
 
-        StartCoroutine(SpawnObstacles());
-    }
+        var playerHealth = FindObjectOfType<PlayerController>().GetPlayerModel().PlayerHealth;
 
-    private void Update() {
-        if (allSpawned && AllObstaclesDestroyed) {
-            // win
-        }
+        playerHealth
+            .ObserveEveryValueChanged(x => x.Value)
+            .Subscribe(
+                playerLife => GameUI.Instance.UpdatePlayerLifeText(playerLife)
+            ).AddTo(this);
+
+        levelCompleted = new ReactiveProperty<bool>();
+
+        Observable.EveryUpdate()
+            .Subscribe(_ => {
+                levelCompleted.Value = allSpawned && AllObstaclesDestroyed;
+            });
+
+        gameOver = playerHealth
+            .CombineLatest(
+                levelCompleted,
+                (health, completed) => health <= 0 || completed
+            ).ToReactiveProperty();
+
+        gameOver
+            .ObserveEveryValueChanged(x => x.Value)
+            .Where(x => x)
+            .Subscribe(_ => {
+                GameUI.Instance.ShowGameOverScreen(playerHealth.Value > 0);
+                if (playerHealth.Value > 0)
+                    PlayerData.Instance.LevelCompleted(LevelIndex);
+                ObjectPoolManager.Instance.Clear();
+            }).AddTo(this);
+
+        
+        StartCoroutine(SpawnObstacles());
     }
 
     private IEnumerator SpawnObstacles() {

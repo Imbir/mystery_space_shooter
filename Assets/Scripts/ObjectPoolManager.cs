@@ -26,4 +26,8 @@ public class ObjectPoolManager {
             pools.Add(objectPrefab, new ObjectPool(objectPrefab));
         return pools[objectPrefab];
     }
+
+    public void Clear() {
+        pools.Clear();
+    }
 }

@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour {
     public float tiltFactor;
     public Transform[] projectileSources;
     public GameObject projectilePrefab;
+    public GameObject explosionPrefab;
 
     private ObjectPool projectileObjectPool;
     private Player playerModel;
@@ -25,9 +26,9 @@ public class PlayerController : MonoBehaviour {
 
         playerModel.PlayerHealth
             .ObserveEveryValueChanged(x => x.Value)
-            .Subscribe(
-                playerLife => GameUI.Instance.UpdatePlayerLifeText(playerLife)
-            ).AddTo(this);
+            .Where(x => x <= 0)
+            .Subscribe(_ => Die())
+            .AddTo(this);
 
         playerModel.PlayerPosition
             .ObserveEveryValueChanged(x => x.Value)
@@ -35,15 +36,28 @@ public class PlayerController : MonoBehaviour {
             .AddTo(this);
 
         Observable.EveryUpdate()
+            .Where(_ => !GameController.Instance.IsGameOver)
             .Select(_ => Input.GetMouseButton(0))
             .Subscribe(isMouseDown => isShooting = isMouseDown).AddTo(this);
 
         Observable.EveryUpdate()
+            .Where(_ => !GameController.Instance.IsGameOver)
             .Subscribe(_ => {
                 HandleInput();
             }).AddTo(this);
 
         StartCoroutine(ShootThread());
+    }
+
+    public Player GetPlayerModel() {
+        return playerModel;
+    }
+
+    private void Die() {
+        var explosion = ObjectPoolManager.Instance.GetObjectPool(explosionPrefab).Get();
+        explosion.transform.position = transform.position;
+        explosion.transform.rotation = transform.rotation;
+        Destroy(gameObject);
     }
 
     public void HandleInput() {
