@@ -4,17 +4,13 @@ using UnityEngine.UI;
 
 public class GameUI : MonoBehaviour {
 
-    private static GameUI instance;
-
-    public static GameUI Instance {
-        get {
-            if (instance == null)
-                instance = FindObjectOfType<GameUI>();
-            return instance;
-        }
-    }
+    public static GameUI Instance { get; private set; }
 
     public Text playerLifeText;
+
+    private void Start() {
+        Instance = this;
+    }
 
     public void UpdatePlayerLifeText(int playerLife) {
         playerLifeText.text = playerLife.ToString();
