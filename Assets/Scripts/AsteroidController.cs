@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
-using UniRx;
 
 
-public class Asteroid : MonoBehaviour {
+public class AsteroidController : MonoBehaviour, IPoolable {
 
+    public float moveSpeed;
     public int durability;
     public float tumbleFactor;
+    public GameObject explosionPrefab;
 
-    void Start() {
+    private ObjectPool parentPool;
+    private ObjectPool explosionPool;
+
+    private void Start() {
+        explosionPool = ObjectPoolManager.Instance.GetObjectPool(explosionPrefab);
         GetComponent<Rigidbody>().angularVelocity = Random.insideUnitSphere * tumbleFactor;
+    }
+
+    private void OnEnable() {
+        GetComponent<Rigidbody>().velocity = Vector3.left * moveSpeed;
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -31,7 +40,17 @@ public class Asteroid : MonoBehaviour {
     }
 
     private void Die() {
-        // return to pool
-        Destroy(gameObject);
+        GameObject explosion = explosionPool.Get();
+        explosion.transform.position = transform.position;
+        explosion.transform.rotation = transform.rotation;
+        ReturnToPool();
+    }
+
+    public void SetParentPool(ObjectPool parentPool) {
+        this.parentPool = parentPool;
+    }
+
+    public void ReturnToPool() {
+        parentPool.Return(gameObject);
     }
 }

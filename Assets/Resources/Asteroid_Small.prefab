@@ -155,5 +155,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44c0f3d162cc19e45b1e0a89dbff51e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 15
   durability: 10
   tumbleFactor: 3
+  explosionPrefab: {fileID: 4499920077234397103, guid: e2ace6c6e550b874d995a6db8b3422cc,
+    type: 3}

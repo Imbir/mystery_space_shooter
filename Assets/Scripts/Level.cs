@@ -1,29 +1,17 @@
 ﻿using UnityEngine;
 
 
-[System.Serializable]
 public class Level {
-    private int id;
-    private int seed = -1;
-    private bool rolled = false;
-    private int obstacleCount = 0;
-    private AsteroidType obstacleType = AsteroidType.NONE;
+    public int Seed;
+    public int ObstacleCount;
+    public AsteroidType ObstacleType;
+    public float SpawnPause;
 
-    public LevelStatus Status { get; set; }
-
-    public Level(int id, int seed) {
-
-    }
-
-    public int ObstacleCount {
-        get => 0;
-    }
-    public AsteroidType ObstacleType {
-        get => 0;
-    }
-    
-
-    public Level() {
-        seed = Random.Range(0, 10000);
+    public Level(int levelIndex, int seed) {
+        Seed = seed;
+        Random.InitState(Seed);
+        ObstacleCount = levelIndex + Random.Range(5, 10);
+        ObstacleType = (AsteroidType)Random.Range(1, 3);
+        SpawnPause = Random.Range(1.0f, 2.0f);
     }
 }

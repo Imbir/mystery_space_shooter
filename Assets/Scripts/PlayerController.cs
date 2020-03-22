@@ -68,8 +68,6 @@ public class PlayerController : MonoBehaviour {
 
     private void Shoot() {
         foreach (Transform projectileSource in projectileSources) {
-            // object pool
-            //Instantiate(projectilePrefab, projectileSource.position, projectileSource.rotation);
             GameObject projectile = projectileObjectPool.Get();
             projectile.transform.position = projectileSource.transform.position;
             projectile.transform.rotation = projectileSource.transform.rotation;
