@@ -28,15 +28,5 @@ public class MainMenuController : MonoBehaviour {
                 if (loadingBarContainer != null)
                     loadingBarContainer.GetComponentInChildren<Slider>().value = loading.progress;
             });
-
-        //StartCoroutine(LoadLevelAsync());
-    }
-
-    private IEnumerator LoadLevelAsync() {
-        AsyncOperation loading = SceneManager.LoadSceneAsync("Level");
-        while (!loading.isDone) {
-            loadingBarContainer.GetComponentInChildren<Slider>().value = loading.progress;
-            yield return null;
-        }
     }
 }

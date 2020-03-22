@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UniRx;
 
 
 public class PlayerView : MonoBehaviour {
